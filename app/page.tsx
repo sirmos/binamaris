@@ -47,7 +47,7 @@ export default function Landing() {
         </div>
         <div className="pillar">
           <p className="tag">binance agent os</p>
-          <h3>Real execution, real receipts</h3>
+          <h3>Execution and receipts</h3>
           <p>
             Approved actions are carried out through a live Binance Agentic
             sub-account. Every order is confirmed and every result is written
