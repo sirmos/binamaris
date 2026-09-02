@@ -43,6 +43,20 @@ interface AuditEntry {
   };
 }
 
+interface VesselState {
+  vessel: { name: string; mmsi: string; imo?: string; flag?: string };
+  connectionState: "idle" | "connecting" | "connected" | "error";
+  lastError: string | null;
+  position: {
+    latitude: number;
+    longitude: number;
+    speedKnots: number;
+    course: number;
+    destination: string | null;
+    timestamp: string;
+  } | null;
+}
+
 function ReserveGauge({
   reserve,
   scaleMax,
@@ -104,10 +118,64 @@ function AuditLine({ entry }: { entry: AuditEntry }) {
   );
 }
 
+function VesselPanel({ vesselState }: { vesselState: VesselState | null }) {
+  if (!vesselState) return null;
+
+  const { vessel, connectionState, position, lastError } = vesselState;
+
+  return (
+    <section>
+      <h2>Vessel</h2>
+      <div className="decision-panel" style={{ borderColor: "#24425e" }}>
+        <h3>{vessel.name}</h3>
+        <p style={{ color: "#8fa3b8", fontSize: 13.5, margin: "4px 0 16px" }}>
+          IMO {vessel.imo} · MMSI {vessel.mmsi} · {vessel.flag}
+        </p>
+
+        {connectionState === "connected" && position && (
+          <div className="mono" style={{ fontSize: 13.5, color: "#b9c6d6" }}>
+            <div>
+              {position.latitude.toFixed(4)}, {position.longitude.toFixed(4)}
+            </div>
+            <div>
+              {position.speedKnots.toFixed(1)} kn, course {position.course.toFixed(0)}°
+            </div>
+            {position.destination && <div>bound for {position.destination}</div>}
+            <div style={{ color: "#5a6f85", marginTop: 6 }}>
+              last position update: {new Date(position.timestamp).toLocaleString()}
+            </div>
+          </div>
+        )}
+
+        {connectionState === "connecting" && (
+          <p className="mono" style={{ fontSize: 13, color: "#8fa3b8" }}>
+            Connected to AIS stream, waiting for this vessel's next position
+            report. AIS reports typically arrive every few minutes while a
+            ship is underway.
+          </p>
+        )}
+
+        {connectionState === "error" && (
+          <p className="mono" style={{ fontSize: 13, color: "#e5484d" }}>
+            {lastError ?? "AIS connection error."}
+          </p>
+        )}
+
+        {connectionState === "idle" && (
+          <p className="mono" style={{ fontSize: 13, color: "#8fa3b8" }}>
+            Starting AIS connection...
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export default function Console() {
   const [treasury, setTreasury] = useState<Treasury | null>(null);
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [audit, setAudit] = useState<AuditEntry[]>([]);
+  const [vesselState, setVesselState] = useState<VesselState | null>(null);
   const [lastResult, setLastResult] = useState<{
     scenario: Scenario;
     result: DecisionResult;
@@ -121,11 +189,21 @@ export default function Console() {
     setAudit(data.audit);
   }
 
+  async function refreshVessel() {
+    const res = await fetch("/api/vessel");
+    const data = await res.json();
+    setVesselState(data);
+  }
+
   useEffect(() => {
     fetch("/api/scenarios")
       .then((r) => r.json())
       .then((d) => setScenarios(d.scenarios));
     refresh();
+    refreshVessel();
+
+    const interval = setInterval(refreshVessel, 15000);
+    return () => clearInterval(interval);
   }, []);
 
   async function runScenario(id: string) {
@@ -157,8 +235,10 @@ export default function Console() {
         <Link href="/" className="brand" style={{ textDecoration: "none", color: "#e8eef5" }}>
           Bina<span>maris</span>
         </Link>
-        <span className="nav-link">MV Ocean Star · bridge</span>
+        <span className="nav-link">EVER GIVEN · bridge</span>
       </nav>
+
+      <VesselPanel vesselState={vesselState} />
 
       <section>
         <h2>Treasury</h2>
