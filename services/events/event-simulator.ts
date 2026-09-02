@@ -21,13 +21,13 @@ export const SCENARIOS: Scenario[] = [
   },
   {
     id: "emergency-repair",
-    title: "Critical engine repair before departure",
+    title: "Unscheduled hull repair",
     narrative:
-      "A safety inspection flagged a critical engine defect that needs immediate repair before departure, but the amount exceeds the autonomous approval threshold.",
+      "A hull inspection flagged damage that needs immediate repair before departure.",
     request: {
-      category: "maintenance",
-      amount: 30000,
-      reason: "Emergency engine repair before departure",
+      category: "emergency",
+      amount: 65000,
+      reason: "Unscheduled hull repair",
     },
   },
   {
