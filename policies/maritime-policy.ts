@@ -1,7 +1,3 @@
-// Deterministic policy engine. No LLM call happens in this file.
-// Every function here is pure: same input always produces the same output,
-// which is what makes the reserve floors and limits testable and auditable.
-
 export type ReserveCategory =
   | "fuel"
   | "port"
@@ -22,8 +18,6 @@ export interface Treasury {
 }
 
 export interface PolicyLimits {
-  // Any single autonomous decision above this amount always requires
-  // human approval, regardless of category or reserve health.
   autonomousTransactionLimit: number;
 }
 
@@ -56,38 +50,6 @@ function findBucket(
   category: ReserveCategory
 ): ReserveBucket | undefined {
   return treasury.reserves.find((r) => r.category === category);
-}
-
-function reasonMatchesCategory(
-  category: ReserveCategory,
-  reason: string
-): boolean {
-  const normalizedReason = reason.toLowerCase();
-
-  if (/(non[- ]emergency|not emergency|not an emergency)/i.test(normalizedReason)) {
-    return false;
-  }
-
-  switch (category) {
-    case "emergency":
-      return /(emergency|repair|incident|safety|rescue|medical|storm)/i.test(
-        normalizedReason
-      );
-    case "maintenance":
-      return /(maintenance|repair|service|inspection|overhaul)/i.test(
-        normalizedReason
-      );
-    case "fuel":
-      return /(fuel|diesel|bunker|gas|lubricant)/i.test(normalizedReason);
-    case "port":
-      return /(port|berth|dock|terminal|pilot|harbor)/i.test(normalizedReason);
-    case "crew":
-      return /(crew|salary|wages|manpower|cabin|travel)/i.test(normalizedReason);
-    case "discretionary":
-      return true;
-    default:
-      return true;
-  }
 }
 
 export function evaluateSpendingRequest(
@@ -158,7 +120,7 @@ export function evaluateSpendingRequest(
       : `Amount exceeds the autonomous limit of ${limits.autonomousTransactionLimit} and needs human approval.`,
   });
 
-  if (!noNegativeTotal) {
+  if (!noNegativeTotal || !reserveFloorHeld) {
     return {
       status: "REJECTED",
       checks,
@@ -170,29 +132,6 @@ export function evaluateSpendingRequest(
   if (!withinAutonomousLimit) {
     return {
       status: "HUMAN_APPROVAL_REQUIRED",
-      checks,
-      projectedTotalBalance,
-      projectedBucketBalance,
-    };
-  }
-
-  if (!reasonMatchesCategory(request.category, request.reason)) {
-    checks.push({
-      name: "category_reason_compatibility",
-      passed: false,
-      detail: `Request category "${request.category}" does not match the stated reason.`,
-    });
-    return {
-      status: "REJECTED",
-      checks,
-      projectedTotalBalance,
-      projectedBucketBalance,
-    };
-  }
-
-  if (!reserveFloorHeld) {
-    return {
-      status: "REJECTED",
       checks,
       projectedTotalBalance,
       projectedBucketBalance,

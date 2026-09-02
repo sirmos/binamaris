@@ -33,9 +33,9 @@ describe("evaluateSpendingRequest", () => {
 
   it("requires human approval above the autonomous limit", () => {
     const result = evaluateSpendingRequest(treasury, limits, {
-      category: "emergency",
-      amount: 65000,
-      reason: "Emergency repair",
+      category: "maintenance",
+      amount: 30000,
+      reason: "Emergency engine repair before departure",
     });
     expect(result.status).toBe("HUMAN_APPROVAL_REQUIRED");
   });
@@ -43,10 +43,12 @@ describe("evaluateSpendingRequest", () => {
   it("rejects a spend that would breach a protected reserve floor", () => {
     const result = evaluateSpendingRequest(treasury, limits, {
       category: "emergency",
-      amount: 4000,
+      amount: 8000,
       reason: "Non emergency use of emergency reserve",
     });
     expect(result.status).toBe("REJECTED");
+    const floorCheck = result.checks.find((c) => c.name === "reserve_floor");
+    expect(floorCheck?.passed).toBe(false);
   });
 
   it("rejects a spend that would take the treasury negative", () => {

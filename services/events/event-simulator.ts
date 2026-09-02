@@ -21,13 +21,13 @@ export const SCENARIOS: Scenario[] = [
   },
   {
     id: "emergency-repair",
-    title: "Unscheduled hull repair",
+    title: "Critical engine repair before departure",
     narrative:
-      "A hull inspection flagged damage that needs immediate repair before departure.",
+      "A safety inspection flagged a critical engine defect that needs immediate repair before departure, but the amount exceeds the autonomous approval threshold.",
     request: {
-      category: "emergency",
-      amount: 65000,
-      reason: "Unscheduled hull repair",
+      category: "maintenance",
+      amount: 30000,
+      reason: "Emergency engine repair before departure",
     },
   },
   {
@@ -42,13 +42,13 @@ export const SCENARIOS: Scenario[] = [
   },
   {
     id: "reserve-protecting-rejection",
-    title: "Non-emergency draw on emergency reserve",
+    title: "Draw on emergency reserve below its protected floor",
     narrative:
-      "A request comes in to use the emergency reserve for a non-emergency expense.",
+      "A request comes in to spend from the emergency reserve for a non-emergency purpose, which would drop the reserve below its protected minimum.",
     request: {
       category: "emergency",
-      amount: 4000,
-      reason: "Crew welfare event, not an emergency",
+      amount: 8000,
+      reason: "Non emergency use of emergency reserve",
     },
   },
 ];
