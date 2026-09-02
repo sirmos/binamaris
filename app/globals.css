@@ -400,3 +400,130 @@ button:disabled:hover {
 .plan li:first-child {
   border-top: none;
 }
+
+section > h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12.5px;
+  color: #b9c6d6;
+}
+
+section > h2::before {
+  content: "";
+  display: block;
+  width: 3px;
+  height: 14px;
+  background: #f0b90b;
+  border-radius: 1px;
+}
+
+.site-nav .brand {
+  position: relative;
+  display: inline-block;
+}
+
+.site-nav .brand span {
+  position: relative;
+}
+
+.site-nav .brand span::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 2px;
+  background: #f0b90b;
+  border-radius: 1px;
+}
+
+.vessel-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #24425e;
+  border-radius: 20px;
+  padding: 6px 14px 6px 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+}
+
+.vessel-pill .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2dd4a7;
+  box-shadow: 0 0 6px #2dd4a7;
+}
+
+.vessel-pill .dot.dim {
+  background: #5a6f85;
+  box-shadow: none;
+}
+
+.vessel-pill .name {
+  color: #e8eef5;
+  font-weight: 600;
+}
+
+.vessel-pill .sep {
+  color: #3a4f68;
+}
+
+.vessel-pill .label {
+  color: #8fa3b8;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 7px;
+}
+
+.status-dot.now {
+  background: #2dd4a7;
+  box-shadow: 0 0 6px #2dd4a7;
+}
+
+.status-dot.next {
+  background: #f0b90b;
+  box-shadow: 0 0 6px #f0b90b;
+}
+
+.status-dot.later {
+  background: #5a6f85;
+}
+
+.range-toggle {
+  display: inline-flex;
+  border: 1px solid #24425e;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.range-toggle button {
+  border: none;
+  border-radius: 0;
+  margin: 0;
+  padding: 6px 14px;
+  font-size: 12px;
+  background: transparent;
+  color: #8fa3b8;
+}
+
+.range-toggle button.active {
+  background: #f0b90b;
+  color: #0a1a2f;
+}
+
+.range-toggle button:hover {
+  background: #f0b90b;
+  color: #0a1a2f;
+}

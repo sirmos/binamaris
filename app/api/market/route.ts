@@ -3,13 +3,22 @@ import { getTicker24h, getRecentCloses } from "../../../services/binance/market-
 
 const SYMBOLS = ["BTCUSDT", "ETHUSDT", "BNBUSDT"];
 
-export async function GET() {
+const RANGES: Record<string, { interval: string; limit: number }> = {
+  "24h": { interval: "1h", limit: 24 },
+  "7d": { interval: "6h", limit: 28 },
+};
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const range = searchParams.get("range") ?? "24h";
+  const { interval, limit } = RANGES[range] ?? RANGES["24h"]!;
+
   try {
     const tickers = await Promise.all(
       SYMBOLS.map(async (symbol) => {
         const [ticker, closes] = await Promise.all([
           getTicker24h(symbol),
-          getRecentCloses(symbol),
+          getRecentCloses(symbol, interval, limit),
         ]);
         return { ...ticker, closes };
       })

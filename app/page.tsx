@@ -7,7 +7,7 @@ export default function Landing() {
         <div className="brand">
           Bina<span>maris</span>
         </div>
-        <Link href="/console" className="nav-link">
+        <Link href="/bridge" className="nav-link">
           The bridge
         </Link>
       </nav>
@@ -21,7 +21,7 @@ export default function Landing() {
           on its own through Binance Agent OS, and stops to ask a human the
           moment a request falls outside policy.
         </p>
-        <Link href="/console" className="cta-primary">
+        <Link href="/bridge" className="cta-primary">
           Open the bridge
         </Link>
           <a
@@ -75,7 +75,7 @@ export default function Landing() {
         <div className="plans">
           <div className="plan">
             <p className="plan-name">Free</p>
-            <p className="plan-status">running now</p>
+            <p className="plan-status"><span className="status-dot now"></span>running now</p>
             <ul>
               <li>Policy engine and audit log</li>
               <li>Live AIS tracking, 1 vessel</li>
@@ -84,7 +84,7 @@ export default function Landing() {
           </div>
           <div className="plan featured">
             <p className="plan-name">Fleet</p>
-            <p className="plan-status">next</p>
+            <p className="plan-status"><span className="status-dot next"></span>next</p>
             <ul>
               <li>Unlimited vessels per operator</li>
               <li>Per-vessel reserve policy</li>
@@ -94,7 +94,7 @@ export default function Landing() {
           </div>
           <div className="plan">
             <p className="plan-name">Enterprise</p>
-            <p className="plan-status">later</p>
+            <p className="plan-status"><span className="status-dot later"></span>later</p>
             <ul>
               <li>Custom policy rules per operator</li>
               <li>Audit export and compliance reporting</li>

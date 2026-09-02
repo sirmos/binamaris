@@ -65,6 +65,8 @@ interface MarketTicker {
   closes: number[];
 }
 
+type Range = "24h" | "7d";
+
 function ReserveGauge({
   reserve,
   scaleMax,
@@ -215,18 +217,35 @@ function Sparkline({ closes, up }: { closes: number[]; up: boolean }) {
 function MarketPanel({
   tickers,
   error,
+  range,
+  onRangeChange,
 }: {
   tickers: MarketTicker[];
   error: string | null;
+  range: Range;
+  onRangeChange: (r: Range) => void;
 }) {
   return (
     <section>
       <h2>Market</h2>
       <div className="decision-panel" style={{ borderColor: "#24425e" }}>
         <p style={{ color: "#8fa3b8", fontSize: 13, margin: "0 0 14px" }}>
-          Live prices from Binance's public market data API. Line shows the
-          last 24 hourly closes.
+          Live prices from Binance's public market data API.
         </p>
+        <div className="range-toggle">
+          <button
+            className={range === "24h" ? "active" : ""}
+            onClick={() => onRangeChange("24h")}
+          >
+            24h
+          </button>
+          <button
+            className={range === "7d" ? "active" : ""}
+            onClick={() => onRangeChange("7d")}
+          >
+            7d
+          </button>
+        </div>
         {error && (
           <p className="mono" style={{ fontSize: 13, color: "#e5484d" }}>
             {error}
@@ -276,6 +295,7 @@ export default function Console() {
   const [vesselState, setVesselState] = useState<VesselState | null>(null);
   const [tickers, setTickers] = useState<MarketTicker[]>([]);
   const [marketError, setMarketError] = useState<string | null>(null);
+  const [range, setRange] = useState<Range>("24h");
   const [lastResult, setLastResult] = useState<{
     scenario: Scenario;
     result: DecisionResult;
@@ -295,8 +315,8 @@ export default function Console() {
     setVesselState(data);
   }
 
-  async function refreshMarket() {
-    const res = await fetch("/api/market");
+  async function refreshMarket(r: Range) {
+    const res = await fetch(`/api/market?range=${r}`);
     const data = await res.json();
     setTickers(data.tickers);
     setMarketError(data.error);
@@ -308,15 +328,21 @@ export default function Console() {
       .then((d) => setScenarios(d.scenarios));
     refresh();
     refreshVessel();
-    refreshMarket();
+    refreshMarket(range);
 
     const vesselInterval = setInterval(refreshVessel, 15000);
-    const marketInterval = setInterval(refreshMarket, 20000);
+    const marketInterval = setInterval(() => refreshMarket(range), 20000);
     return () => {
       clearInterval(vesselInterval);
       clearInterval(marketInterval);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  function changeRange(r: Range) {
+    setRange(r);
+    refreshMarket(r);
+  }
 
   async function runScenario(id: string) {
     setLoading(id);
@@ -341,18 +367,30 @@ export default function Console() {
     ? Math.max(...treasury.reserves.map((r) => r.allocated)) * 1.15
     : 1;
 
+  const vesselConnected = vesselState?.connectionState === "connected";
+
   return (
     <main>
       <nav className="site-nav">
         <Link href="/" className="brand" style={{ textDecoration: "none", color: "#e8eef5" }}>
           Bina<span>maris</span>
         </Link>
-        <span className="nav-link">EVER GIVEN : bridge</span>
+        <div className="vessel-pill">
+          <span className={`dot${vesselConnected ? "" : " dim"}`} />
+          <span className="name">EVER GIVEN</span>
+          <span className="sep">/</span>
+          <span className="label">bridge</span>
+        </div>
       </nav>
 
       <VesselPanel vesselState={vesselState} />
 
-      <MarketPanel tickers={tickers} error={marketError} />
+      <MarketPanel
+        tickers={tickers}
+        error={marketError}
+        range={range}
+        onRangeChange={changeRange}
+      />
 
       <section>
         <h2>Treasury</h2>
