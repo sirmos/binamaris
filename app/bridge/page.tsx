@@ -65,7 +65,7 @@ interface MarketTicker {
   closes: number[];
 }
 
-type Range = "24h" | "7d";
+type Range = "now" | "24h" | "7d";
 
 function ReserveGauge({
   reserve,
@@ -234,6 +234,12 @@ function MarketPanel({
         </p>
         <div className="range-toggle">
           <button
+            className={range === "now" ? "active" : ""}
+            onClick={() => onRangeChange("now")}
+          >
+            Now
+          </button>
+          <button
             className={range === "24h" ? "active" : ""}
             onClick={() => onRangeChange("24h")}
           >
@@ -295,7 +301,7 @@ export default function Console() {
   const [vesselState, setVesselState] = useState<VesselState | null>(null);
   const [tickers, setTickers] = useState<MarketTicker[]>([]);
   const [marketError, setMarketError] = useState<string | null>(null);
-  const [range, setRange] = useState<Range>("24h");
+  const [range, setRange] = useState<Range>("now");
   const [lastResult, setLastResult] = useState<{
     scenario: Scenario;
     result: DecisionResult;
