@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { getTicker24h, getRecentCloses } from "../../../services/binance/market-data";
 
 const SYMBOLS = ["BTCUSDT", "ETHUSDT", "BNBUSDT"];

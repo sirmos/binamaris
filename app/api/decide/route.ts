@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { getScenario } from "../../../services/events/event-simulator";
 import { decide } from "../../../services/decision/decision-engine";
 

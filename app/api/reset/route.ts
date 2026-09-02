@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { unlink } from "node:fs/promises";
 import path from "node:path";
 

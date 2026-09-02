@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { loadTreasury } from "../../../domain/vessels/treasury-store";
 import { readAuditLog } from "../../../audit/audit-log";
 

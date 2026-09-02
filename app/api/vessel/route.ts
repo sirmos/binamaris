@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+
+export const dynamic = "force-dynamic";
 import { ensureVesselTracking, getVesselState } from "../../../services/ais/vessel-cache";
 import { TRACKED_VESSEL } from "../../../domain/vessels/identity";
 
