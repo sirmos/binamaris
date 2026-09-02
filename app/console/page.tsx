@@ -157,7 +157,7 @@ export default function Console() {
         <Link href="/" className="brand" style={{ textDecoration: "none", color: "#e8eef5" }}>
           Bina<span>maris</span>
         </Link>
-        <span className="nav-link">MV Ocean Star · console</span>
+        <span className="nav-link">MV Ocean Star · bridge</span>
       </nav>
 
       <section>

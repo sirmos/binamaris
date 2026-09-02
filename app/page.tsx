@@ -8,21 +8,21 @@ export default function Landing() {
           Bina<span>maris</span>
         </div>
         <Link href="/console" className="nav-link">
-          Open console
+          The bridge
         </Link>
       </nav>
 
       <div className="landing-hero">
         <p className="kicker">autonomous vessel treasury</p>
-        <h1>A treasury agent that knows what it is not allowed to do.</h1>
+        <h1>Runs the ship's treasury. Calls you when it can't decide.</h1>
         <p className="lede">
           Binamaris manages a vessel's operating funds against fixed
-          reserve floors and spending limits, executes routine decisions on
-          its own through Binance Agent OS, and stops to ask a human the
+          reserve floors and spending limits. It executes routine decisions
+          on its own through Binance Agent OS, and stops to ask a human the
           moment a request falls outside policy.
         </p>
         <Link href="/console" className="cta-primary">
-          Open the console
+          Open the bridge
         </Link>
           <a
           href="https://github.com/sirmos/binamaris"
@@ -66,15 +66,16 @@ export default function Landing() {
       </div>
 
       <section>
-        <h2>Plans</h2>
+        <h2>Milestones</h2>
         <p className="plans-intro">
-          Binamaris is a single-vessel prototype today. This is the shape a
-          production version would take for a fleet operator.
+          This build runs one vessel end to end. A fleet operator would need
+          more than one ship on the books at once, which is what the next
+          two tiers add.
         </p>
         <div className="plans">
           <div className="plan">
             <p className="plan-name">Free</p>
-            <p className="plan-status">one vessel, this build</p>
+            <p className="plan-status">running now</p>
             <ul>
               <li>Policy engine and audit log</li>
               <li>Live AIS tracking, 1 vessel</li>
@@ -83,7 +84,7 @@ export default function Landing() {
           </div>
           <div className="plan featured">
             <p className="plan-name">Fleet</p>
-            <p className="plan-status">planned</p>
+            <p className="plan-status">next</p>
             <ul>
               <li>Unlimited vessels per operator</li>
               <li>Per-vessel reserve policy</li>
@@ -93,7 +94,7 @@ export default function Landing() {
           </div>
           <div className="plan">
             <p className="plan-name">Enterprise</p>
-            <p className="plan-status">planned</p>
+            <p className="plan-status">later</p>
             <ul>
               <li>Custom policy rules per operator</li>
               <li>Audit export and compliance reporting</li>
