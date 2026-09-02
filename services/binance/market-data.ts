@@ -22,3 +22,21 @@ export async function getTicker24h(symbol: string): Promise<TickerSnapshot> {
     fetchedAt: new Date().toISOString(),
   };
 }
+
+export async function getRecentCloses(
+  symbol: string,
+  interval: string = "1h",
+  limit: number = 24
+): Promise<number[]> {
+  const base = process.env.BINANCE_API_BASE_URL ?? "https://api.binance.com";
+  const res = await fetch(
+    `${base}/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`
+  );
+
+  if (!res.ok) {
+    throw new Error(`Binance klines request failed: ${res.status}`);
+  }
+
+  const rows = await res.json();
+  return rows.map((row: unknown[]) => Number(row[4]));
+}

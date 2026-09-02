@@ -62,6 +62,7 @@ interface MarketTicker {
   lastPrice: number;
   priceChangePercent: number;
   fetchedAt: string;
+  closes: number[];
 }
 
 function ReserveGauge({
@@ -178,6 +179,39 @@ function VesselPanel({ vesselState }: { vesselState: VesselState | null }) {
   );
 }
 
+function Sparkline({ closes, up }: { closes: number[]; up: boolean }) {
+  if (closes.length < 2) return null;
+
+  const width = 120;
+  const height = 32;
+  const min = Math.min(...closes);
+  const max = Math.max(...closes);
+  const range = max - min || 1;
+
+  const points = closes
+    .map((v, i) => {
+      const x = (i / (closes.length - 1)) * width;
+      const y = height - ((v - min) / range) * height;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+
+  const color = up ? "#2dd4a7" : "#e5484d";
+
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}>
+      <polyline
+        points={points}
+        fill="none"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 function MarketPanel({
   tickers,
   error,
@@ -190,7 +224,8 @@ function MarketPanel({
       <h2>Market</h2>
       <div className="decision-panel" style={{ borderColor: "#24425e" }}>
         <p style={{ color: "#8fa3b8", fontSize: 13, margin: "0 0 14px" }}>
-          Live prices from Binance's public market data API.
+          Live prices from Binance's public market data API. Line shows the
+          last 24 hourly closes.
         </p>
         {error && (
           <p className="mono" style={{ fontSize: 13, color: "#e5484d" }}>
@@ -210,14 +245,16 @@ function MarketPanel({
               className="mono"
               style={{
                 display: "flex",
+                alignItems: "center",
                 justifyContent: "space-between",
                 fontSize: 14,
-                padding: "8px 0",
+                padding: "10px 0",
                 borderTop: "1px solid #1a2f4a",
               }}
             >
-              <span style={{ color: "#e8eef5" }}>{t.symbol}</span>
-              <span>
+              <span style={{ color: "#e8eef5", minWidth: 90 }}>{t.symbol}</span>
+              <Sparkline closes={t.closes} up={up} />
+              <span style={{ textAlign: "right", minWidth: 130 }}>
                 ${t.lastPrice.toLocaleString()}{" "}
                 <span style={{ color: up ? "#2dd4a7" : "#e5484d" }}>
                   {up ? "+" : ""}

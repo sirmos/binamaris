@@ -1,11 +1,19 @@
 import { NextResponse } from "next/server";
-import { getTicker24h } from "../../../services/binance/market-data";
+import { getTicker24h, getRecentCloses } from "../../../services/binance/market-data";
 
-const SYMBOLS = ["BTCUSDT", "ETHUSDT"];
+const SYMBOLS = ["BTCUSDT", "ETHUSDT", "BNBUSDT"];
 
 export async function GET() {
   try {
-    const tickers = await Promise.all(SYMBOLS.map((s) => getTicker24h(s)));
+    const tickers = await Promise.all(
+      SYMBOLS.map(async (symbol) => {
+        const [ticker, closes] = await Promise.all([
+          getTicker24h(symbol),
+          getRecentCloses(symbol),
+        ]);
+        return { ...ticker, closes };
+      })
+    );
     return NextResponse.json({ tickers, error: null });
   } catch (err) {
     return NextResponse.json(
