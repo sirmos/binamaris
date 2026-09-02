@@ -57,6 +57,13 @@ interface VesselState {
   } | null;
 }
 
+interface MarketTicker {
+  symbol: string;
+  lastPrice: number;
+  priceChangePercent: number;
+  fetchedAt: string;
+}
+
 function ReserveGauge({
   reserve,
   scaleMax,
@@ -105,7 +112,7 @@ function AuditLine({ entry }: { entry: AuditEntry }) {
       <div className="audit-entry-line">
         <span>
           <span className="timestamp">{time}</span>
-          {req ? `${req.category} · $${req.amount.toLocaleString()}` : entry.type}
+          {req ? `${req.category} : $${req.amount.toLocaleString()}` : entry.type}
         </span>
         <span
           className={`audit-entry-status status-${status.toLowerCase()}`}
@@ -129,7 +136,7 @@ function VesselPanel({ vesselState }: { vesselState: VesselState | null }) {
       <div className="decision-panel" style={{ borderColor: "#24425e" }}>
         <h3>{vessel.name}</h3>
         <p style={{ color: "#8fa3b8", fontSize: 13.5, margin: "4px 0 16px" }}>
-          IMO {vessel.imo} · MMSI {vessel.mmsi} · {vessel.flag}
+          IMO {vessel.imo} : MMSI {vessel.mmsi} : {vessel.flag}
         </p>
 
         {connectionState === "connected" && position && (
@@ -138,7 +145,7 @@ function VesselPanel({ vesselState }: { vesselState: VesselState | null }) {
               {position.latitude.toFixed(4)}, {position.longitude.toFixed(4)}
             </div>
             <div>
-              {position.speedKnots.toFixed(1)} kn, course {position.course.toFixed(0)}°
+              {position.speedKnots.toFixed(1)} kn, course {position.course.toFixed(0)} deg
             </div>
             {position.destination && <div>bound for {position.destination}</div>}
             <div style={{ color: "#5a6f85", marginTop: 6 }}>
@@ -171,11 +178,67 @@ function VesselPanel({ vesselState }: { vesselState: VesselState | null }) {
   );
 }
 
+function MarketPanel({
+  tickers,
+  error,
+}: {
+  tickers: MarketTicker[];
+  error: string | null;
+}) {
+  return (
+    <section>
+      <h2>Market</h2>
+      <div className="decision-panel" style={{ borderColor: "#24425e" }}>
+        <p style={{ color: "#8fa3b8", fontSize: 13, margin: "0 0 14px" }}>
+          Live prices from Binance's public market data API.
+        </p>
+        {error && (
+          <p className="mono" style={{ fontSize: 13, color: "#e5484d" }}>
+            {error}
+          </p>
+        )}
+        {!error && tickers.length === 0 && (
+          <p className="mono" style={{ fontSize: 13, color: "#8fa3b8" }}>
+            Loading market data...
+          </p>
+        )}
+        {tickers.map((t) => {
+          const up = t.priceChangePercent >= 0;
+          return (
+            <div
+              key={t.symbol}
+              className="mono"
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                fontSize: 14,
+                padding: "8px 0",
+                borderTop: "1px solid #1a2f4a",
+              }}
+            >
+              <span style={{ color: "#e8eef5" }}>{t.symbol}</span>
+              <span>
+                ${t.lastPrice.toLocaleString()}{" "}
+                <span style={{ color: up ? "#2dd4a7" : "#e5484d" }}>
+                  {up ? "+" : ""}
+                  {t.priceChangePercent.toFixed(2)}%
+                </span>
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 export default function Console() {
   const [treasury, setTreasury] = useState<Treasury | null>(null);
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [audit, setAudit] = useState<AuditEntry[]>([]);
   const [vesselState, setVesselState] = useState<VesselState | null>(null);
+  const [tickers, setTickers] = useState<MarketTicker[]>([]);
+  const [marketError, setMarketError] = useState<string | null>(null);
   const [lastResult, setLastResult] = useState<{
     scenario: Scenario;
     result: DecisionResult;
@@ -195,15 +258,27 @@ export default function Console() {
     setVesselState(data);
   }
 
+  async function refreshMarket() {
+    const res = await fetch("/api/market");
+    const data = await res.json();
+    setTickers(data.tickers);
+    setMarketError(data.error);
+  }
+
   useEffect(() => {
     fetch("/api/scenarios")
       .then((r) => r.json())
       .then((d) => setScenarios(d.scenarios));
     refresh();
     refreshVessel();
+    refreshMarket();
 
-    const interval = setInterval(refreshVessel, 15000);
-    return () => clearInterval(interval);
+    const vesselInterval = setInterval(refreshVessel, 15000);
+    const marketInterval = setInterval(refreshMarket, 20000);
+    return () => {
+      clearInterval(vesselInterval);
+      clearInterval(marketInterval);
+    };
   }, []);
 
   async function runScenario(id: string) {
@@ -235,10 +310,12 @@ export default function Console() {
         <Link href="/" className="brand" style={{ textDecoration: "none", color: "#e8eef5" }}>
           Bina<span>maris</span>
         </Link>
-        <span className="nav-link">EVER GIVEN · bridge</span>
+        <span className="nav-link">EVER GIVEN : bridge</span>
       </nav>
 
       <VesselPanel vesselState={vesselState} />
+
+      <MarketPanel tickers={tickers} error={marketError} />
 
       <section>
         <h2>Treasury</h2>
