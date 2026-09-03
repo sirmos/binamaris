@@ -337,7 +337,7 @@ export default function Console() {
     refreshMarket(range);
 
     const vesselInterval = setInterval(refreshVessel, 15000);
-    const marketInterval = setInterval(() => refreshMarket(range), 20000);
+    const marketInterval = setInterval(() => refreshMarket(range), 60000);
     return () => {
       clearInterval(vesselInterval);
       clearInterval(marketInterval);
