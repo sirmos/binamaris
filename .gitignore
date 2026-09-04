@@ -8,3 +8,4 @@ npm-debug.log*
 .DS_Store
 domain/vessels/sessions/
 audit/sessions/
+domain/vessels/treasury-state.json
