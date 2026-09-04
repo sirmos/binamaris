@@ -7,7 +7,7 @@ export interface TickerSnapshot {
 
 let bannedUntil = 0;
 const cache = new Map<string, { data: unknown; expiresAt: number }>();
-const CACHE_TTL_MS = 15000;
+const CACHE_TTL_MS = 120000;
 
 function checkBan() {
   if (Date.now() < bannedUntil) {
