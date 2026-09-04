@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
+
 import { getScenario } from "../../../services/events/event-simulator";
 import { decide } from "../../../services/decision/decision-engine";
+import { getSessionId } from "../../../services/session/get-session-id";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -12,6 +14,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unknown scenario" }, { status: 400 });
   }
 
-  const result = await decide(scenario.request);
+  const sessionId = getSessionId();
+  const result = await decide(sessionId, scenario.request);
   return NextResponse.json({ scenario, result });
 }

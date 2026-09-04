@@ -6,4 +6,5 @@ coverage
 .env.local
 npm-debug.log*
 .DS_Store
-domain/vessels/treasury-state.json
+domain/vessels/sessions/
+audit/sessions/

@@ -5,13 +5,16 @@ import {
 } from "../../policies/maritime-policy";
 import { DEFAULT_POLICY_LIMITS } from "../../policies/limits";
 import { loadTreasury, applyApprovedSpend } from "../../domain/vessels/treasury-store";
-import { recordAuditEntry } from "../../audit/audit-log";
+import { recordSessionEntry } from "../../audit/audit-log";
 
-export async function decide(request: SpendingRequest): Promise<DecisionResult> {
-  const treasury = await loadTreasury();
+export async function decide(
+  sessionId: string,
+  request: SpendingRequest
+): Promise<DecisionResult> {
+  const treasury = await loadTreasury(sessionId);
   const result = evaluateSpendingRequest(treasury, DEFAULT_POLICY_LIMITS, request);
 
-  await recordAuditEntry({
+  await recordSessionEntry(sessionId, {
     type: "DECISION",
     timestamp: new Date().toISOString(),
     payload: {
@@ -22,7 +25,7 @@ export async function decide(request: SpendingRequest): Promise<DecisionResult> 
   });
 
   if (result.status === "APPROVED") {
-    await applyApprovedSpend(request.category, request.amount);
+    await applyApprovedSpend(sessionId, request.category, request.amount);
   }
 
   return result;

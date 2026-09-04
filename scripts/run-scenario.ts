@@ -23,7 +23,7 @@ async function main() {
   console.log(`\nRequest: ${scenario.request.category} - $${scenario.request.amount}`);
   console.log(`Reason: ${scenario.request.reason}\n`);
 
-  const result = await decide(scenario.request);
+  const result = await decide("cli-local", scenario.request);
 
   console.log(`Decision: ${result.status}\n`);
   for (const check of result.checks) {

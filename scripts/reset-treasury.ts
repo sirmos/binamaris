@@ -1,19 +1,12 @@
 // Run with: npx tsx scripts/reset-treasury.ts
-// Deletes the current treasury state file so the next loadTreasury()
-// call reseeds it back to the default $250,000 starting position.
+// Resets the "cli-local" session's treasury back to the default seed.
+// This is separate from any real visitor's session.
 
-import { unlink } from "node:fs/promises";
-import path from "node:path";
-
-const STORE_PATH = path.join(process.cwd(), "domain", "vessels", "treasury-state.json");
+import { resetTreasury } from "../domain/vessels/treasury-store";
 
 async function main() {
-  try {
-    await unlink(STORE_PATH);
-    console.log("Treasury state reset. Next run will reseed to defaults.");
-  } catch {
-    console.log("No existing treasury state file found, nothing to reset.");
-  }
+  await resetTreasury("cli-local");
+  console.log("Treasury state reset for cli-local. Next run will reseed to defaults.");
 }
 
 main();
