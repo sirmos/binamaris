@@ -52,6 +52,33 @@ The agent's job is to interpret a situation and hand it to the policy
 engine. The policy engine's job is to say yes, no, or "ask a person." The
 agent never overrides that answer.
 
+## How Agent OS is actually used
+
+Binance's Agent OS only lets a small list of approved AI clients connect,
+things like VS Code, Zed, and ChatGPT, each recognized by their own
+registered identity. A custom backend, including Binamaris running on
+Render, cannot register itself and connect on its own. There is no
+workaround for this from the outside, it is how Binance built the
+authorization layer.
+
+So the calls to Agent OS in this project happened through an
+authorized session, VS Code with GitHub Copilot Chat connected to
+Binance's MCP server, logged into the same Agentic sub-account Binamaris
+tracks. From there:
+
+- Balances and account state were read live from the sub-account.
+- A live MARKET SELL order was submitted through `spot.newOrder`. Binance
+  rejected it for falling under the exchange's own minimum order size,
+  which is proof the order reached live validation on the actual exchange.
+
+Both results were written into Binamaris's own audit log through its
+`/api/execute` route, the same log that records every policy decision.
+Binamaris is the part that stays running, holds the policy, and keeps the
+record. The authorized session is what is allowed to actually talk to
+Agent OS. Binance's own product works this way too, every trade needs a
+human to confirm it, so this split is not a workaround, it matches how
+the platform is meant to be used.
+
 ## Running it
 
 ```bash
