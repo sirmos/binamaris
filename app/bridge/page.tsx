@@ -40,6 +40,10 @@ interface AuditEntry {
   payload: {
     request?: { category: string; amount: number; reason: string };
     status?: string;
+    channel?: string;
+    result?: string;
+    reason?: string;
+    note?: string;
   };
 }
 
@@ -101,14 +105,41 @@ function ReserveGauge({
 }
 
 function AuditLine({ entry }: { entry: AuditEntry }) {
-  const req = entry.payload.request;
-  const status = entry.payload.status ?? "";
   const time = new Date(entry.timestamp).toLocaleString(undefined, {
     month: "short",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
   });
+
+  if (entry.type === "EXECUTION_RECEIPT") {
+    const result = entry.payload.result ?? "";
+    const isRejected = result.toLowerCase().includes("reject");
+    return (
+      <div className="entry">
+        <div className="audit-entry-line">
+          <span>
+            <span className="timestamp">{time}</span>
+            {entry.payload.channel ?? "Agent OS execution"}
+          </span>
+          <span
+            className={`audit-entry-status status-${isRejected ? "rejected" : "approved"}`}
+          >
+            {result.replace(/_/g, " ")}
+          </span>
+        </div>
+        {entry.payload.reason && (
+          <div style={{ color: "#5a6f85", marginTop: 2 }}>{entry.payload.reason}</div>
+        )}
+        {entry.payload.note && (
+          <div style={{ color: "#5a6f85", marginTop: 2 }}>{entry.payload.note}</div>
+        )}
+      </div>
+    );
+  }
+
+  const req = entry.payload.request;
+  const status = entry.payload.status ?? "";
 
   return (
     <div className="entry">
